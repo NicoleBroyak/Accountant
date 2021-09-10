@@ -1,0 +1,49 @@
+
+
+
+Account balance: 10160
+Items on stock:
+ABC: 2 pcs
+CBA: 1 pcs
+
+Summary:
+Operation nr 1:
+mode: saldo
+Operation in mode 'saldo' number 1: 10000 - description: wplata
+
+Operation nr 1:
+mode: saldo
+Operation in mode 'zakup'number 1:Item:ABC purchased 10 pcs for price 100gr
+
+Operation nr 1:
+mode: saldo
+Operation in mode 'zakup'number 1:Item:CBA purchased 5 pcs for price 1000gr
+
+Operation nr 1:
+mode: saldo
+Operation in mode 'sprzedaż' number1:Item:ABC sold 8 pcs for price 120gr
+
+Operation nr 1:
+mode: saldo
+Operation in mode 'sprzedaż' number1:Item:CBA sold 4 pcs for price 1300gr
+
+
+Correct input log:saldo
+10000
+wplata
+zakup
+ABC
+100
+10
+zakup
+CBA
+1000
+5
+sprzedaż
+ABC
+120
+8
+sprzedaż
+CBA
+1300
+4
