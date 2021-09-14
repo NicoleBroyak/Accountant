@@ -11,21 +11,21 @@ Operation nr 1:
 mode: saldo
 Operation in mode 'saldo' number 1: 10000 - description: wplata
 
-Operation nr 1:
-mode: saldo
+Operation nr 2:
+mode: zakup
 Operation in mode 'zakup'number 1:Item:ABC purchased 10 pcs for price 100gr
 
-Operation nr 1:
-mode: saldo
-Operation in mode 'zakup'number 1:Item:CBA purchased 5 pcs for price 1000gr
+Operation nr 3:
+mode: zakup
+Operation in mode 'zakup'number 2:Item:CBA purchased 5 pcs for price 1000gr
 
-Operation nr 1:
-mode: saldo
+Operation nr 4:
+mode: sprzedaż
 Operation in mode 'sprzedaż' number1:Item:ABC sold 8 pcs for price 120gr
 
-Operation nr 1:
-mode: saldo
-Operation in mode 'sprzedaż' number1:Item:CBA sold 4 pcs for price 1300gr
+Operation nr 5:
+mode: sprzedaż
+Operation in mode 'sprzedaż' number2:Item:CBA sold 4 pcs for price 1300gr
 
 
 Correct input log:saldo

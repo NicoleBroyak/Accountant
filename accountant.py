@@ -1,4 +1,4 @@
-from module.input import input_mode
+from module.input import input_mode, inputlist, input_list
 
 account_values = []
 account_comments = []
@@ -23,56 +23,45 @@ index, index_balance, index_purch, index_sell, account_balance = 0, 0, 0, 0, 0
 #     - jeżeli towar jest: zmniejsz stan magazynowy
 
 def input_trade():
-    item_name = input("Please type item name")
-    item_price = int(input("Please type item price"))
-    item_quantity = int(input("Please type item quantity"))
+    item_name = input_list()
+    item_price = int(input_list())
+    item_quantity = int(input_list())
     return item_name, item_price, item_quantity
 
 def input_balance():
-    account_value = int(input("Please type operation value (in gr)"))
-    account_comment = input("Please type operation description")
+    account_value = int(input_list())
+    account_comment = input_list()
     while account_balance > account_value:
-        account_value = (int(input(
-                        "Please type operation value (in gr)"))
-        )
-        account_comment = input("Please type operation description")
+        account_value = int(input_list())
+        account_comment = input_list()
     return account_value, account_comment
     
 
 def input_check_balance(account_value = 0, account_comment = ""):
         if account_balance + account_value < 0:
             while account_balance + account_value < 0:
-                account_value = (int(input(
-                                "ERROR Please type operation value (in gr)")))
-                account_comment = input("Please type operation description")
+                account_value = (int(input_list()))
+                account_comment = input_list()
         return account_value, account_comment
 
 
 def item_loop_purch(item_price, item_quantity, trade_items, item_name):
     while ((item_price <= 0) or (item_quantity <= 0)):
-            item_price = (
-            int(input("ERROR Please type correct item price"))
-            )
-            item_quantity = (
-            int(input("ERROR Please type corect item quantity"))
-            )
+            item_price = int(input_list())
+            item_quantity = int(input_list())
     return item_price, item_quantity
 
 
 def item_loop_sell(item_price, item_quantity, trade_items, item_name):
     while ((item_price <= 0) or (item_quantity <= 0)
         or (trade_items[item_name] < item_quantity)):
-            item_price = (
-            int(input("ERROR Please type correct item price"))
-            )
-            item_quantity = (
-            int(input("ERROR Please type corect item quantity"))
-            )
+            item_price = int(input_list())
+            item_quantity = int(input_list())
     return item_price, item_quantity
 
 def input_check_sell(item_name = "",item_price = 0, item_quantity = 0):
     while item_name not in trade_items:
-        item_name = input("ERROR: Please type correct item name")
+        item_name = input_list()
     item_price, item_quantity = item_loop_sell(item_price, item_quantity, trade_items, item_name)
     return item_name, item_price, item_quantity
 
@@ -112,6 +101,7 @@ def oper_append_sell(index_sell=index_sell, mode=mode):
                         f"{str(index_sell + 1)}:"
                         f"Item:{item_name} sold {item_quantity}" 
                         f" pcs for price {item_price}gr")
+    print(index_sell, index)
 
 def inputlog_extend(mode=mode):
     if mode == "saldo":
@@ -123,6 +113,10 @@ def inputlog_extend(mode=mode):
     return
 
 ALLOWED_COMMANDS = "saldo", "sprzedaż", "zakup", "stop", "end"
+
+with open("def.txt", mode="r") as file:
+    for i in file:
+        inputlist.insert(0, i.replace("\n", ""))
 
 with open("output.txt", mode="w") as file:
     file.write("")
@@ -146,7 +140,7 @@ while mode in ALLOWED_COMMANDS:
         trade_items_check(mode, item_name)
         account_balance -= item_price * item_quantity
         inputlog.extend([mode, item_name, item_price, item_quantity])
-        oper_append_purch()
+        oper_append_purch(index_purch, mode)
         index_purch += 1
         index += 1
     if mode == "sprzedaż":
@@ -157,13 +151,13 @@ while mode in ALLOWED_COMMANDS:
         trade_items_check(mode, item_name)
         account_balance += item_price * item_quantity
         inputlog.extend([mode, item_name, item_price, item_quantity])
-        oper_append_sell()
+        oper_append_sell(index_sell, mode)
         index_sell += 1
         index += 1
     if mode == "stop":
         print(f"Number of operations: {index}\n")
-        index_first = int(input("Please type first operation to view:"))
-        index_last = int(input("Please type last operation to view:"))
+        index_first = int(input_list())
+        index_last = int(input_list())
         index = 1
         with open("output.txt", mode="a") as file:
             file.write(f"\n\n\nAccount balance: {account_balance}\n")
@@ -175,12 +169,13 @@ while mode in ALLOWED_COMMANDS:
                 if index >= index_first and index_first <= index_last:
                     file.write(f"Operation nr {index}:\nmode: "
                                f"{operations_type[index - 1]}\n{i}\n\n")
-            if index == index_last:
-                break
-            index += 1
+                if index == index_last:
+                    break
+                index += 1
             file.write("\nCorrect input log:")
             for i in inputlog:
                 file.write(str(i) + "\n")
         mode = "end"
         break
     mode = input_mode(ALLOWED_COMMANDS)
+    print(mode)
