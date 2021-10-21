@@ -1,7 +1,4 @@
-
-
-
-Account balance: 10160
+Account balance: 52160
 Items on stock:
 ABC: 2 pcs
 CBA: 1 pcs
@@ -27,6 +24,14 @@ Operation nr 5:
 mode: sprzedaż
 Operation in mode 'sprzedaż' number2:Item:CBA sold 4 pcs for price 1300gr
 
+Operation nr 6:
+mode: saldo
+Operation in mode 'saldo' number 2: 1000 - description: wplata
+
+Operation nr 7:
+mode: saldo
+Operation in mode 'saldo' number 3: 20000 - description: wplata
+
 
 Correct input log:saldo
 10000
@@ -47,3 +52,12 @@ sprzedaż
 CBA
 1300
 4
+saldo
+1000
+wplata
+saldo
+20000
+wplata
+saldo
+21000
+wyplata

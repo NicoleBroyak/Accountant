@@ -1,3 +1,4 @@
+WRONG
 saldo
 10000
 wplata
@@ -17,6 +18,15 @@ sprzedaż
 CBA
 1300
 4
+saldo
+1000
+wplata
+saldo
+20000
+wplata
+saldo
+21000
+wyplata
 stop
 1
-5
+7

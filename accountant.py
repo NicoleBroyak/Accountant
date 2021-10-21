@@ -1,14 +1,4 @@
-from module.input import input_mode, inputlist, input_list
-
-account_values = []
-account_comments = []
-account_balance = 0
-trade_items = dict()
-operations_type = []
-operations = []
-inputlog = []
-mode = ''
-index, index_balance, index_purch, index_sell, account_balance = 0, 0, 0, 0, 0
+from module.input import inputlist, input_list
 
 
 # sciezki programu:
@@ -22,160 +12,208 @@ index, index_balance, index_purch, index_sell, account_balance = 0, 0, 0, 0, 0
 #     - jeżeli brak towaru lub towaru mniej niż sprzedawane: - błąd "brak towaru"
 #     - jeżeli towar jest: zmniejsz stan magazynowy
 
-def input_trade():
-    item_name = input_list()
-    item_price = int(input_list())
-    item_quantity = int(input_list())
-    return item_name, item_price, item_quantity
+class Manager():
 
-def input_balance():
-    account_value = int(input_list())
-    account_comment = input_list()
-    while account_balance > account_value:
-        account_value = int(input_list())
-        account_comment = input_list()
-    return account_value, account_comment
+    def __init__(self):
+        self.ALLOWED_COMMANDS = "saldo", "sprzedaż", "zakup", "stop", "end"
+        self.actions = {
+            'saldo': saldo.saldo_operation,
+            'sprzedaż': sprzedaz.sprzedaz_operation,
+            'zakup': zakup.zakup_operation,
+            'stop': self.stop_operation,
+        }
+        self.mode = 'start'
+        self.index = 0
+        self.operations_type = []
+        self.operations = []
+        self.inputlog = []
+        self.operations_number = 0
+        for operations in inputlist:
+            if operations in self.ALLOWED_COMMANDS:
+                self.operations_number += 1
     
+    def select_mode(func):
+        def inner(self):
+            self.mode = input_list()
+            while self.mode not in self.ALLOWED_COMMANDS:
+                print("Wrong mode")
+                self.mode = input_list()
+            func(self)
+            return func
+        return inner
 
-def input_check_balance(account_value = 0, account_comment = ""):
-        if account_balance + account_value < 0:
-            while account_balance + account_value < 0:
-                account_value = (int(input_list()))
-                account_comment = input_list()
-        return account_value, account_comment
+    @select_mode
+    def assign(self):
+        self.actions[self.mode]()
 
-
-def item_loop_purch(item_price, item_quantity, trade_items, item_name):
-    while ((item_price <= 0) or (item_quantity <= 0)):
-            item_price = int(input_list())
-            item_quantity = int(input_list())
-    return item_price, item_quantity
-
-
-def item_loop_sell(item_price, item_quantity, trade_items, item_name):
-    while ((item_price <= 0) or (item_quantity <= 0)
-        or (trade_items[item_name] < item_quantity)):
-            item_price = int(input_list())
-            item_quantity = int(input_list())
-    return item_price, item_quantity
-
-def input_check_sell(item_name = "",item_price = 0, item_quantity = 0):
-    while item_name not in trade_items:
-        item_name = input_list()
-    item_price, item_quantity = item_loop_sell(item_price, item_quantity, trade_items, item_name)
-    return item_name, item_price, item_quantity
-
-
-def input_check_purch(item_name = "",item_price = 0, item_quantity = 0):
-    item_price, item_quantity = item_loop_purch(item_price, item_quantity, trade_items, item_name)
-    return item_name, item_price, item_quantity
-
-def trade_items_check(mode, item_name):
-    if mode == "zakup":
-        if item_name not in trade_items:
-            trade_items[item_name] = item_quantity
-        else:
-            trade_items[item_name] += item_quantity
-    if mode == "sprzedaż":
-        trade_items[item_name] -= item_quantity
-
-def oper_append_balance(index_balance=index_balance, index=index, mode=mode):
-    account_values.append(account_value)
-    account_comments.append(account_comment)
-    operations_type.append(mode)
-    operations.append(f"Operation in mode 'saldo' number"
-                        f" {str(index_balance + 1)}:"
-                        f" {str(account_values[index_balance])} - "
-                        f"description: {account_comments[index]}")
-
-def oper_append_purch(index_purch=index_purch, mode=mode):
-    operations_type.append(mode)
-    operations.append(f"Operation in mode 'zakup'" 
-                        f"number {str(index_purch + 1)}:"
-                        f"Item:{item_name} purchased {item_quantity}"
-                        f" pcs for price {item_price}gr")
-
-def oper_append_sell(index_sell=index_sell, mode=mode):
-    operations_type.append(mode)
-    operations.append(f"Operation in mode 'sprzedaż' number"
-                        f"{str(index_sell + 1)}:"
-                        f"Item:{item_name} sold {item_quantity}" 
-                        f" pcs for price {item_price}gr")
-    print(index_sell, index)
-
-def inputlog_extend(mode=mode):
-    if mode == "saldo":
-        inputlog.extend(mode, account_values[-1], account_comments[-1])
-    if mode == "zakup":
-        inputlog.extend(mode, item_name, item_price, item_quantity)
-    if mode == "sprzedaż":
-        inputlog.extend(mode, item_name, item_price, item_quantity)
-    return
-
-ALLOWED_COMMANDS = "saldo", "sprzedaż", "zakup", "stop", "end"
-
-with open("def.txt", mode="r") as file:
-    for i in file:
-        inputlist.insert(0, i.replace("\n", ""))
-
-with open("output.txt", mode="w") as file:
-    file.write("")
-mode = input_mode(ALLOWED_COMMANDS)
-while mode in ALLOWED_COMMANDS:
-    if mode == "saldo":
-        account_value, account_comment = input_balance()
-        account_value, account_comment = (
-        input_check_balance(account_value, account_comment)
-        )
-        account_balance += account_value
-        oper_append_balance(index_balance, index, mode)
-        inputlog.extend([mode, account_value, account_comment])
-        index_balance += 1
-        index += 1
-    if mode == "zakup":
-        item_name, item_price, item_quantity = input_trade()
-        item_name, item_price, item_quantity = (
-        input_check_purch(item_name, item_price, item_quantity)
-        )
-        trade_items_check(mode, item_name)
-        account_balance -= item_price * item_quantity
-        inputlog.extend([mode, item_name, item_price, item_quantity])
-        oper_append_purch(index_purch, mode)
-        index_purch += 1
-        index += 1
-    if mode == "sprzedaż":
-        item_name, item_price, item_quantity = input_trade()
-        item_name, item_price, item_quantity = (
-        input_check_sell(item_name, item_price, item_quantity)
-        )
-        trade_items_check(mode, item_name)
-        account_balance += item_price * item_quantity
-        inputlog.extend([mode, item_name, item_price, item_quantity])
-        oper_append_sell(index_sell, mode)
-        index_sell += 1
-        index += 1
-    if mode == "stop":
-        print(f"Number of operations: {index}\n")
+    def stop_operation(self):
+        print("stop operation")
         index_first = int(input_list())
         index_last = int(input_list())
         index = 1
         with open("output.txt", mode="a") as file:
-            file.write(f"\n\n\nAccount balance: {account_balance}\n")
+            file.write(f"Account balance: {saldo.account_balance}\n")
             file.write("Items on stock:\n")
-            for item_name, item_quantity in trade_items.items():
+            for item_name, item_quantity in products.trade_items.items():
                 file.write(f"{item_name}: {item_quantity} pcs\n")
             file.write("\nSummary:\n")
-            for i in operations:
+            for i in manager.operations:
                 if index >= index_first and index_first <= index_last:
                     file.write(f"Operation nr {index}:\nmode: "
-                               f"{operations_type[index - 1]}\n{i}\n\n")
+                               f"{manager.operations_type[index - 1]}\n{i}\n\n")
                 if index == index_last:
                     break
                 index += 1
             file.write("\nCorrect input log:")
-            for i in inputlog:
+            for i in manager.inputlog:
                 file.write(str(i) + "\n")
-        mode = "end"
-        break
-    mode = input_mode(ALLOWED_COMMANDS)
-    print(mode)
+            self.mode = "end"
+
+class Saldo():
+    
+    def __init__(self):
+        self.index_balance = 0
+        self.account_balance = 0
+        self.account_values = []
+        self.account_comments = []
+
+    def saldo_operation(self):
+        print("saldo operation")
+        self.input_balance()
+        self.input_check_balance()
+        self.account_balance += self.account_value
+        self.oper_append_balance()
+        self.input_log_extend()
+        self.index_balance += 1
+        manager.index += 1
+    
+    def input_balance(self):
+        self.account_value = int(input_list())
+        self.account_comment = input_list()
+        while self.account_balance + self.account_value < 0:
+            self.account_value = int(input_list())
+            self.account_comment = input_list()
+
+    def input_check_balance(self):
+        if self.account_balance + self.account_value < 0:
+            while self.account_balance + self.account_value < 0:
+                self.account_value = (int(input_list()))
+                self.account_comment = input_list()
+
+    def oper_append_balance(self):
+        self.account_values.append(self.account_value)
+        self.account_comments.append(self.account_comment)
+        manager.operations_type.append("saldo")
+        manager.operations.append(f"Operation in mode 'saldo' number"
+                            f" {str(self.index_balance + 1)}:"
+                            f" {str(self.account_values[self.index_balance])} - "
+                            f"description: {self.account_comments[self.index_balance]}")
+
+    def input_log_extend(self):
+        manager.inputlog.extend(("saldo", self.account_values[-1], self.account_comments[-1]))
+
+class Products():
+    def __init__(self):
+        self.trade_items = dict()
+
+class Zakup():
+
+    def __init__(self):
+        self.index_purch = 0
+    
+    def zakup_operation(self):
+        print("zakup operation")
+        self.input_trade()
+        self.item_loop_purch()
+        self.trade_items_check()
+        saldo.account_balance -= self.item_price * self.item_quantity
+        self.input_log_extend()
+        self.oper_append_purch()
+        self.index_purch += 1
+        manager.index += 1
+
+
+    def input_trade(self):
+        self.item_name = input_list()
+        self.item_price = int(input_list())
+        self.item_quantity = int(input_list())
+
+    def item_loop_purch(self):
+        while ((self.item_price <= 0) or (self.item_quantity <= 0)):
+                self.item_price = int(input_list())
+                self.item_quantity = int(input_list())
+
+    def input_check_purch(self):
+        self.item_loop_purch()
+
+    def trade_items_check(self):
+            if self.item_name not in products.trade_items:
+                products.trade_items[self.item_name] = self.item_quantity
+            else:
+                products.trade_items[self.item_name] += self.item_quantity
+
+    def oper_append_purch(self):
+        manager.operations_type.append("zakup")
+        manager.operations.append(f"Operation in mode 'zakup'" 
+                            f"number {str(self.index_purch + 1)}:"
+                            f"Item:{self.item_name} purchased {self.item_quantity}"
+                            f" pcs for price {self.item_price}gr")
+
+    def input_log_extend(self):
+        manager.inputlog.extend(("zakup", self.item_name, self.item_price, self.item_quantity))
+
+
+class Sprzedaz():
+    
+    def __init__(self):
+        self.index_sell = 0
+
+    def sprzedaz_operation(self):
+        print("sprzedaz operation")
+        Zakup.input_trade(self)
+        self.input_check_sell()
+        self.item_loop_sell()
+        self.trade_items_check()
+        saldo.account_balance += self.item_price * self.item_quantity
+        self.input_log_extend()
+        self.oper_append_sell()
+        self.index_sell += 1
+        manager.index += 1
+    
+    def item_loop_sell(self):
+        while ((self.item_price <= 0) or (self.item_quantity <= 0)
+            or (products.trade_items[self.item_name] < self.item_quantity)):
+                self.item_price = int(input_list())
+                self.item_quantity = int(input_list())
+
+    def input_check_sell(self):
+        while self.item_name not in products.trade_items:
+            self.item_name = input_list()
+        self.item_loop_sell()
+
+    def oper_append_sell(self):
+        manager.operations_type.append("sprzedaż")
+        manager.operations.append(f"Operation in mode 'sprzedaż' number"
+                            f"{str(self.index_sell + 1)}:"
+                            f"Item:{self.item_name} sold {self.item_quantity}" 
+                            f" pcs for price {self.item_price}gr")
+
+    def trade_items_check(self):
+        products.trade_items[self.item_name] -= self.item_quantity
+
+    def input_log_extend(self):
+        manager.inputlog.extend(("sprzedaż", self.item_name, self.item_price, self.item_quantity))
+
+with open("def.txt", mode="r") as file:
+    for i in file:
+        inputlist.insert(0, i.replace("\n", ""))
+with open("output.txt", mode="w") as file:
+    file.write("")
+
+saldo = Saldo()
+zakup = Zakup()
+sprzedaz = Sprzedaz()
+manager = Manager()
+products = Products()
+for i in range(manager.operations_number):
+    manager.assign()

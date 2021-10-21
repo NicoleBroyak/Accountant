@@ -1,9 +1,12 @@
 inputlist = []
 
 def input_list():
-    input = inputlist[-1]
-    inputlist.pop()
-    return input
+    try:
+        input = inputlist[-1]
+        inputlist.pop()
+        return input
+    except:
+        "End of input"
 
 def input_mode(ALLOWED_COMMANDS):
     mode = input_list()
